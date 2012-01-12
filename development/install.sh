@@ -3,23 +3,24 @@
 #************************ User Variables **************************#
 hostname=''
 sudoUser=''
-sudoUserPasswd=''
+sudoPasswd=''
 rootPasswd=''
 sshPort=''
 #******************************************************************#
 
 verify()
 {
+    var3=$3
     echo "Your $1 has been set as: $2"
     sleep 1
     echo "Is this correct? (y,n)"
     read conf
     while [[ -z "$conf" || $conf != "y" || "$conf" != "n" ]]; do 
         if [ "$conf" == "n" ]; then 
-            ${2}='' 
+            unset ${var3} 
             break 
         elif [ "$conf" == "y" ]; then
-            echo "Hostname has been set as: $2"
+            echo "$1 has been set as: $2"
             break
         else
             echo "Invalid option"
@@ -35,28 +36,48 @@ os_select()
     if [ "$(cat /etc/lsb-release | grep natty)" == "DISTRIB_CODENAME=natty" ];
         then
             echo "Installing Apache, PHP and MySQL for Ubuntu 11.04, Natty Narwhal..."
-            sleep 1
         else
             echo "Your (ve) Server OS is not supported in this install!"
-            sleep 1
     fi
 }
 
 set_variables()
 {
     while [ -z "$hostname" ]; do
+        sleep 1
         echo "Please set your Hostname: "
         read hostname
         sleep 1
-        verify "Hostname" ${hostname}
+        verify "Hostname" ${hostname} "hostname"
     done
-    echo "$hostname is....."
     while [ -z "$sudoUser" ]; do
+        sleep 1
         echo "Please set your Sudo User: "
         read sudoUser
         sleep 1
+        verify "Sudo User" ${sudoUser} "sudoUser"
     done
-
+    while [ -z "$sudoPasswd" ]; do
+        sleep 1
+        echo "Please set your Sudo Passwd: "
+        read sudoPasswd
+        sleep 1
+        verify "Sudo Passwd" ${sudoPasswd} "sudoPasswd"
+    done
+    while [ -z "$rootPasswd" ]; do
+        sleep 1
+        echo "Please set your Root Passwd: "
+        read rootPasswd
+        sleep 1
+        verify "Root Passwd" ${rootPasswd} "rootPasswd"
+    done
+    while [ -z "$sshPort" ]; do
+        sleep 1
+        echo "Please set your SSH Port: "
+        read sshPort
+        sleep 1
+        verify "SSH Port" ${sshPort} "sshPort"
+    done
 }
 
 
