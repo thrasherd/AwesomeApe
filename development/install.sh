@@ -1,11 +1,13 @@
 #!/bin/bash
 
 #************************ User Variables **************************#
-hostname=''
+hostname='ohaiworld.com'
 sudoUser=''
 sudoPasswd=''
 rootPasswd=''
 sshPort=''
+locale='en_US.UTF-8'
+timeZone='America/Los_Angeles'
 #******************************************************************#
 
 verify()
@@ -36,6 +38,7 @@ os_select()
     if [ "$(cat /etc/lsb-release | grep natty)" == "DISTRIB_CODENAME=natty" ];
         then
             echo "Installing Apache, PHP and MySQL for Ubuntu 11.04, Natty Narwhal..."
+            touch install.log
         else
             echo "Your (ve) Server OS is not supported in this install!"
     fi
@@ -78,9 +81,38 @@ set_variables()
         sleep 1
         verify "SSH Port" ${sshPort} "sshPort"
     done
+    sleep 1
+    echo "Settings done."
 }
 
+set_locale()
+{
+
+    echo -n "Setting up system locale to $locale..."
+    { 
+        locale-gen $locale
+        unset LANG
+        /usr/sbin/update-locale LANG=$locale
+    } > /dev/null 2>&1
+    export LANG=$locale
+    sleep 1
+    echo "done."
+
+}
+
+set_timezone()
+{
+    
+    echo "Setting Timezone to $timeZone..."
+    echo "$timezone" > /etc/timezone
+    dpkg-reconfigure -f noninteractive tzdata > /dev/null 2>&1
+    echo "done."
+}
 
 os_select
 
 set_variables
+
+#set_locale
+
+#set_timezone
