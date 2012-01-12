@@ -14,10 +14,10 @@ verify()
     sleep 1
     echo "Is this correct? (y,n)"
     read conf
-    while [[ -z "$conf" || $conf != "y" || "$conf" != "n" ]]; do
-        if [ "$conf" == "n" ]; then
-            $2=''
-            break
+    while [[ -z "$conf" || $conf != "y" || "$conf" != "n" ]]; do 
+        if [ "$conf" == "n" ]; then 
+            ${2}='' 
+            break 
         elif [ "$conf" == "y" ]; then
             echo "Hostname has been set as: $2"
             break
@@ -48,7 +48,7 @@ set_variables()
         echo "Please set your Hostname: "
         read hostname
         sleep 1
-        verify "Hostname" $hostname
+        verify "Hostname" ${hostname}
     done
     echo "$hostname is....."
     while [ -z "$sudoUser" ]; do
