@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #************************ User Variables **************************#
-hostname='ohaiworld.com'
+hostname=''
 sudoUser=''
 sudoPasswd=''
 rootPasswd=''
