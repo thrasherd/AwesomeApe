@@ -33,6 +33,12 @@ verify()
     done
 }
 
+clear_tmp()
+{
+    touch tmp/test.$$
+    rm -rf tmp/*.$$
+}
+
 set_hostname()
 {
     touch TEST
@@ -41,6 +47,27 @@ set_hostname()
     echo ${hostname} > TEST
     echo "127.0.0.1 ${hostname}" >> TEST
     echo "done."
+}
+
+create_sudo_user()
+{
+    echo -n "Creating a new sudo user: ${sudoUser}"
+    useradd -d /home/${sudoUser} -s /bin/bash -m ${sudoUser}
+    echo "${sudoUser}:${sudoPasswd}" | chpasswd
+    echo "${sudoUser} ALL=(ALL) ALL" >> /etc/sudoers
+    {
+        echo 'export PS1="\[\e[32;1m\]\u\[\e[0m\]\[\e[32m\]@\h\[\e[36m\]\w \[\e[33m\]\$ \[\e[0m\]"'
+    } >> /home/$sudo_user/.bashrc
+    echo "done."
+}
+
+set_root_passwd()
+{
+    echo -n "Applying root password to config..."
+    echo "${rootPasswd}\n${rootPasswd}" > tmp/pass.$$
+    passwd root < tmp/pass.$$ > /dev/null 2>&1
+    echo "done."
+    clear_tmp
 }
 
 os_select()
@@ -83,6 +110,7 @@ set_variables()
         sleep .5
         verify "Sudo Passwd" ${sudoPasswd} "sudoPasswd"
     done
+    #create_sudo_user
     while [ -z "$rootPasswd" ]; do
         sleep .5
         echo "Please set your Root Passwd: "
@@ -90,6 +118,7 @@ set_variables()
         sleep .5
         verify "Root Passwd" ${rootPasswd} "rootPasswd"
     done
+    #set_root_passwd
     while [ -z "$sshPort" ]; do
         sleep .5
         echo "Please set your SSH Port: "
