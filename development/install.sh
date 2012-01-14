@@ -6,6 +6,7 @@ sudoUser=''
 sudoPasswd=''
 rootPasswd=''
 sshPort=''
+disRoot=''
 locale='en_US.UTF-8'
 timeZone='America/Los_Angeles'
 #******************************************************************#
@@ -17,7 +18,7 @@ verify()
     sleep .5
     echo "Is this correct? (y,n)"
     read conf
-    while [[ -z "$conf" || $conf != "y" || "$conf" != "n" ]]; do 
+    while [[ -z "$conf" || "$conf" != "y" || "$conf" != "n" ]]; do 
         if [ "$conf" == "n" ]; then 
             unset ${var3} 
             break 
@@ -27,7 +28,7 @@ verify()
         else
             echo "Invalid option"
             sleep .5
-            echo "Is this correct? (y,n)"
+            echo "Please select one option: (y,n)"
             read conf
         fi
     done
@@ -35,7 +36,6 @@ verify()
 
 clear_tmp()
 {
-    touch tmp/test.$$
     rm -rf tmp/*.$$
 }
 
@@ -81,6 +81,31 @@ os_select()
     fi
 }
 
+ssh_config()
+{
+    ssh='/etc/ssh/sshd_config'
+    echo "Configuring SSH..."
+    mkdir ~/.ssh && chmod 700 ~/.ssh/
+    cp /etc/ssh/sshd_config /etc/ssh/sshd_config.`date "+%Y-%m-%d"`
+    sed -i -r 's/\s*X11Forwarding\s+yes/X11Forwarding no/g' ${ssh}
+    sed -i -r 's/\s*UsePAM\s+yes/UsePAM no/g' ${ssh}
+    sed -i -r 's/\s*UseDNS\s+yes/UseDNS no/g' ${ssh}
+    perl -p -i -e 's|LogLevel INFO|LogLevel VERBOSE|g;' ${ssh}
+    grep -q "UsePAM no" ${ssh} || echo "UsePAM no" >> ${ssh}
+    grep -q "UseDNS no" ${ssh} || echo "UseDNS" >> ${ssh}
+    sleep 2
+    echo -n "Applying SSH port..."
+    sed -i -r "s/\s*Port\s+[0-9]+/Port ${sshPort}/g" ${ssh}
+    cp files/iptables.up.rules tmp/fw.$$
+    sed -i -r "s/\s+22\s+/ ${sshPort} /" tmp/fw.$$
+    echo "done."
+    sleep .5
+    echo -n "Disabling root access..."
+    sed -i -r 's/\s*PermitRootLogin\s+yes/PermitRootLogin no/g' ${ssh}
+    echo "AllowUsers ${sudoUser}" >> ${ssh}
+    echo "done."
+}
+
 set_variables()
 {
     while [ -z "$hostname" ]; do
@@ -90,7 +115,7 @@ set_variables()
         sleep .5
         verify "Hostname" ${hostname} "hostname"
     done
-    set_hostname
+    #set_hostname
     while [ -z "$sudoUser" ]; do
         sleep .5
         echo "Please set your Sudo User: "
@@ -126,6 +151,17 @@ set_variables()
         sleep .5
         verify "SSH Port" ${sshPort} "sshPort"
     done
+    while [ -z "$disRoot" ]; do
+        sleep .5
+        echo "Would you like to disable root access? (y,n)"
+        read disRoot
+        sleep .5
+        if [ "$disRoot" == "n" ]; then
+            unset ${disRoot}
+        fi
+        sleep .5
+        verify "Disable Root" ${disRoot} "disRoot"
+    done
     sleep .5
     echo "Settings done."
 }
@@ -148,7 +184,7 @@ set_locale()
 set_timezone()
 {
     
-    echo "Setting Timezone to $timeZone..."
+    echo -n "Setting Timezone to $timeZone..."
     echo "$timezone" > /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata > /dev/null 2>&1
     echo "done."
