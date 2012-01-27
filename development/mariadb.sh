@@ -23,12 +23,12 @@ install_mariadb()
     make install >> ~/install.log
     echo "done."
     sleep 5
-    echo -n "Creating MySQL user"
+    echo -n "Creating MySQL user..."
     groupadd mysql
     useradd -g mysql mysql
     echo "done."
     sleep 5
-    echo -n "Setting MySQL Ownership and starting MariaDB"
+    echo -n "Setting MySQL Ownership and starting MariaDB..."
     scripts/mysql_install_db --user=mysql >> ~/install.log
     /usr/local/mysql/bin/mysqld_safe --user=mysql >> ~/install.log
     echo "done."
