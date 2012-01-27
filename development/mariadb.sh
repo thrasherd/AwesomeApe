@@ -1,11 +1,11 @@
-#!/bin/bash/
+#!/bin/bash
 
 install_mariadb()
 {
     touch ~/install.log
     echo -n "Building dependancies for Mariadb..."
     apt-get update >> ~/install.log
-    apt-get build-deb mysql-server -y >> ~/install.log
+    apt-get build-dep mysql-server -y >> ~/install.log
     mkdir ~/repos && cd ~/repos
     echo "done."
     sleep 5
@@ -34,4 +34,4 @@ install_mariadb()
     echo "done."
 }
 
-install_mariadb()
+install_mariadb
