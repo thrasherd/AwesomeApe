@@ -75,7 +75,7 @@ os_select()
     if [ "$(cat /etc/lsb-release | grep natty)" == "DISTRIB_CODENAME=natty" ];
         then
             echo "Installing Apache, PHP and MySQL for Ubuntu 11.04, Natty Narwhal..."
-            touch install.log
+            touch log/install.log
         else
             echo "Your (ve) Server OS is not supported in this install!"
     fi
@@ -104,6 +104,49 @@ ssh_config()
     sed -i -r 's/\s*PermitRootLogin\s+yes/PermitRootLogin no/g' ${ssh}
     echo "AllowUsers ${sudoUser}" >> ${ssh}
     echo "done."
+}
+
+firewall_config()
+{
+    echo -n "Configuring firewall..."
+    cp tmp/fw.$$ /etc/iptables.up.rules
+    iptables -F
+    iptables-restore < /etc/iptables.up.rules > /dev/null 2>&1 &&
+    sed -i 's%pre-up iptables-restore < /etc/iptables.up.rules%%g' /etc/network/interfaces
+    sed -i -r 's%\s*iface\s+lo\s+inet\s+loopback%iface lo inet loopback\npre-up iptables-restore < /etc/iptables.up.rules%g' /etc/network/interfaces
+    /etc/init.d/ssh reload > /dev/null 2>&1
+    echo "done."
+}
+
+tmp_config()
+{
+    echo "Configuring temporary directory..."
+    echo "APT::ExtractTemplates::TempDir \"/var/local/tmp\";" > /etc/apt/apt.conf.d/50extracttemplates && mkdir /var/local/tmp
+    mkdir ~/tmp && chmod 777 ~/tmp
+    mount --bind ~/tmp /tmp
+    echo "done."
+}
+
+install_base()
+{
+    echo -n "Setting up base packages..."
+    apt-get update >> ~/install.log
+    apt-get -y safe-upgrade >> ~/install.log
+    apt-get -y full-upgrade >> ~/install.log
+    apt-get -y install curl build-essentials python-software-properties git-core htop >> ~/install.log
+    echo "done.."
+}
+
+install_php()
+{
+
+    echo -n "Installing PHP..."
+    mkdir -p /var/www
+    apt-get -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl >> ~/install.log
+    apt-get -y install php5-fpm php5-cgi php5-pear php-apc php5-dev libpcre3-dev >> ~/install.log
+
+    `
+
 }
 
 set_variables()
