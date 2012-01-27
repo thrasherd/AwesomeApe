@@ -4,7 +4,7 @@ install_mariadb()
 {
     touch ~/install.log ~/error.log
     echo -n "Building dependancies for Mariadb..."
-    apt-get -q update >> ~/install.log
+    apt-get --quiet update >> ~/install.log
     apt-get --quiet -y build-dep mysql-server
     mkdir ~/repos && cd ~/repos
     echo "done."
@@ -30,8 +30,9 @@ install_mariadb()
     sleep 2
     echo -n "Setting MySQL Ownership and starting MariaDB..."
     scripts/mysql_install_db --user=mysql >> ~/install.log
-    nohup /usr/local/mysql/bin/mysqld_safe --user=mysql >> ~/install.log 2> ~/error.log
     echo "done."
 }
 
 install_mariadb
+
+nohup /usr/local/mysql/bin/mysqld_safe --user=mysql >> ~/install.log 2> ~/error.log
