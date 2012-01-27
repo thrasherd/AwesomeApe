@@ -13,7 +13,7 @@ install_mariadb()
     wget http://downloads.askmonty.org/f/mariadb-5.2.10/kvm-tarbake-jaunty-x86/mariadb-5.2.10.tar.gz/from/http:/ftp.osuosl.org/pub/mariadb >> ~/install.log
     echo "done."
     mv mariadb mariadb.tar.gz && tar -zxf mariadb.tar.gz && rm -rf maria.tar.gz
-    mv mariadb* mariadb && cd mariadb
+    mv mariadb-* mariadb && cd mariadb
     sleep 5
     echo -n "Stage 1: Building install for MariaDB. This may take some time..."
     BUILD/compile-pentium64-max >> ~/install.log
