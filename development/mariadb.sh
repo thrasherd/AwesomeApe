@@ -31,8 +31,8 @@ install_mariadb()
     echo "done."
     sleep 2
     echo -n "Setting MySQL Ownership and starting MariaDB..."
-    /usr/local/mysql/bin/mysqld_safe --user=mysql & >> ~/install.log 2> ~/error.log
     scripts/mysql_install_db --user=mysql >> ~/install.log
+    /usr/local/mysql/bin/mysqld_safe --user=mysql & >> ~/install.log 2> ~/error.log
     echo "done."
 }
 
