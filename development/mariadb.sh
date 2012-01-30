@@ -4,8 +4,8 @@ install_mariadb()
 {
     touch ~/install.log ~/error.log
     echo -n "Building dependancies for Mariadb..."
-    aptitude --quiet update >> ~/install.log
-    aptitude --quiet -y build-dep mysql-server >> ~/install.log
+    aptitude -q=2 update >> ~/install.log
+    aptitude -q=2 -y build-dep mysql-server >> ~/install.log
     mkdir ~/repos && cd ~/repos
     echo "done."
     sleep 2
