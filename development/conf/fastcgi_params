@@ -1,0 +1,25 @@
+fastcgi_param QUERY_STRING ;
+fastcgi_param REQUEST_METHOD ;
+fastcgi_param CONTENT_TYPE ;
+fastcgi_param CONTENT_LENGTH ;
+
+fastcgi_param SCRIPT_FILENAME ;
+fastcgi_param SCRIPT_NAME ;
+fastcgi_param REQUEST_URI ;
+fastcgi_param DOCUMENT_URI ;
+fastcgi_param DOCUMENT_ROOT ;
+fastcgi_param SERVER_PROTOCOL ;
+
+fastcgi_param GATEWAY_INTERFACE CGI/1.1;
+fastcgi_param SERVER_SOFTWARE nginx/;
+
+fastcgi_param REMOTE_ADDR ;
+fastcgi_param REMOTE_PORT ;
+fastcgi_param SERVER_ADDR ;
+fastcgi_param SERVER_PORT ;
+fastcgi_param SERVER_NAME ;
+
+#fastcgi_param HTTPS ;
+
+# PHP only, required if PHP was built with --enable-force-cgi-redirect
+fastcgi_param REDIRECT_STATUS 200;

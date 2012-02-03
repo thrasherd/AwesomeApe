@@ -1,12 +1,17 @@
 #!/bin/bash
 
 #************************ User Variables **************************#
-hostname=''
-sudoUser=''
-sudoPasswd=''
-rootPasswd=''
-sshPort=''
+hostname='ohaiworld.com'
+sudoUser='rawr'
+sudoPasswd='bar'
+rootPasswd='foo'
+dbPasswd='baz'
+sshPort='22'
 disRoot=''
+choice=''
+wpDB=''
+wpUser=''
+wpPasswd=''
 locale='en_US.UTF-8'
 timeZone='America/Los_Angeles'
 #******************************************************************#
@@ -75,7 +80,7 @@ os_select()
     if [ "$(cat /etc/lsb-release | grep natty)" == "DISTRIB_CODENAME=natty" ];
         then
             echo "Installing Apache, PHP and MySQL for Ubuntu 11.04, Natty Narwhal..."
-            touch log/install.log
+            touch ~/install.log
         else
             echo "Your (ve) Server OS is not supported in this install!"
     fi
@@ -144,9 +149,125 @@ install_php()
     mkdir -p /var/www
     apt-get -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl >> ~/install.log
     apt-get -y install php5-fpm php5-cgi php5-pear php-apc php5-dev libpcre3-dev >> ~/install.log
+    perl -p -i -e 's|# Default-Stop:|# Default-Stop:      0 1 6|g;' /etc/init.d/php5-fpm
+    cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"`
+    chmod 000 /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"` && mv /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"` /tmp
+    perl -p -i -e 's|listen = 127.0.01:9000|listen = /var/run/php5-fpm.sock|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|;listen.allowed_clients = 127.0.0.1|listen.allowed_clients = 127.0.0.1|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|;pm.status_path = /status|pm.status_path = /status|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|;ping.path = /ping|ping.path = /ping|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|;ping.response = pong|ping.response = pong|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|;request_terminate_timeout = 0|request_terminate_timeout = 300s|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|;request_slowlog_timeout = 0|request_slowlog_timeout = 5s|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|;listen.backlog = -1|listen.backlog = -1|g;' /etc/php5/fpm/pool.d/www.conf
+    sed -i -r "s/www-data/$sudo_user/g" /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|;slowlog = log/\$pool.log.slow|slowlog = /var/log/php5-fpm.log.slow|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|;catch_workers_output = yes|catch_workers_output = yes|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|pm.max_children = 50|pm.max_children = 25|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|;pm.start_servers = 20|pm.start_servers = 3|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|pm.min_spare_servers = 5|pm.min_spare_servers = 2|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|pm.max_spare_servers = 35|pm.max_spare_servers = 4|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|;pm.max_requests = 500|pm.max_requests = 500|g;' /etc/php5/fpm/pool.d/www.conf
+    perl -p -i -e 's|;emergency_restart_threshold = 0|emergency_restart_threshold = 10|g;' /etc/php5/fpm/main.conf
+    perl -p -i -e 's|;emergency_restart_interval = 0|emergency_restart_interval = 1m|g;' /etc/php5/fpm/main.conf
+    perl -p -i -e 's|;process_control_timeout = 0|process_control_timeout = 5s|g;' /etc/php5/fpm/main.conf
+    perl -p -i -e 's|;daemonize = yes|daemonize = yes|g;' /etc/php5/fpm/main.conf
+    cp /etc/php5/fpm/php.ini /etc/php5/fpm/php.ini.`date "+%Y-%m-%d"`
+    perl -p -i -e 's|;date.timezone =|date.timezone = America/Los_Angeles|g;' /etc/php5/fpm/php.ini
+    perl -p -i -e 's|expose_php = On|expose_php = Off|g;' /etc/php5/fpm/php.ini
+    perl -p -i -e 's|allow_url_fopen = On|allow_url_fopen = Off|g;' /etc/php5/fpm/php.ini
+    perl -p -i -e 's|;cgi.fix_pathinfo=1|cgi.fix_pathinfo=0|g;' /etc/php5/fpm/php.ini
+    perl -p -i -e 's|;realpath_cache_size = 16k|realpath_cache_size = 128k|g;' /etc/php5/fpm/php.ini
+    perl -p -i -e 's|;realpath_cache_ttl = 120|realpath_cache_ttl = 600|g;' /etc/php5/fpm/php.ini
+    perl -p -i -e 's|disable_functions =|disable_functions = "system,exec,shell_exec,passthru,escapeshellcmd,popen,pcntl_exec"|g;' /etc/php5/fpm/php.ini
+    cp files/apc.ini /etc/php5/fpm/conf.d/apc.ini
+    service php5-fpm stop > /dev/null 2>&1
+    service php5-fpm start > /dev/null 2>&1
+    echo "done."
+}
 
-    `
+install_database()
+{
+    if [ ${choice} == "MariaDB" ];
+        then
+            echo -n "Installing MariaDB..."
+            apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 1BB943DB
+            touch /etc/apt/sources.list.d/mariadb.list
+            echo "deb http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main
+deb-src http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main" > /etc/apt/sources.list.d/mariadb.list
+            apt-get update
+            echo "mariadb-server mariadb-server/root_password select $dbPasswd" | debconf-set-selections
+            echo "mariadb-server mariadb-server/root_password_again select $dbPasswd" | debconf-set-selections
+            apt-get install mariadb-server mariadb-client >> ~/install.log
+    elif [ ${choice} == "MySQL" ];
+        then
+            echo -n "Installing MySQL..."
+            echo "mysql-server mysql-server/root_password select $dbPasswd" | debconf-set-selections
+            echo "mysql-server mysql-server/root_password_again select $dbPasswd" | debconf-set-selections
+            apt-get install -y mysql-server >> ~/install.log
+    else
+        unset ${choice}
+    fi
+    cat <<EOF > /root/.my.cnf
+[client]
+user=root
+password=$mysqlPasswd
 
+EOF
+    chmod 600 /root/.my.cnf
+    mv /etc/mysql/my.cnf /etc/mysql/my.cnf.`date "+%Y-%m-%d"`
+    ./conf/my.sh
+    touch /var/log/mysql/mysql/mysql-slow.log
+    chown mysql:mysql /var/log/mysql/mysql-slow.log
+    service mysqld restart > /dev/null 2>&1
+    echo "done."
+}
+
+config_wp_database()
+{
+    echo -n "Creating WordPress database..."
+    mysql -e "CREATE DATABASE ${wpDB}"
+    mysql -e "GRANT ALL PRIVILEGES ON ${wpDB}.* to ${wpUser}@localhost INDENTIFIED BY '${wpPasswd}'"
+    mysql -e "FLUSH PRIVILEGES"
+    echo "done."
+}
+
+install_nginx()
+{
+    echo -n "Installing Nginx..."
+    add-apt-respository ppa:nginx/stable > /dev/null 2>&1
+    apt-get -y update >> ~/install.log
+    apt-get -y install nginx >> ~/install.log
+    cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.`date "+%Y-%m-%d"`
+    rm -rf /etc/nginx/nginx.conf
+    cp conf/nginx.conf /etc/nginx/nginx.conf
+    /bin/mkdir -p ~/.vim/syntax
+    cp conf/nginx.conf ~/.vim/syntax/nginx.vim
+    touch ~/.vim/filetype.vim
+    echo "au BufRead,BufNewFile /etc/nginx/* set ft=nginx" >> ~/.vim/filetype.vim
+    rm -rf /etc/nginx/sites-available/default
+    unlink /etc/nginx/sites-enabled/default
+    cp conf/mydomain.com /etc/nginx/sites-available/${hostname}.conf
+    rm -rf /etc/nginx/fastcgi_params
+    cp conf/fastcgi_params /etc/nginx/fastcgi_params
+    sed -i -r "s/sudoer/${sudoUser}/g" /etc/nginx/nginx.conf
+    sed -i -r "s/mydomain.com/${$hostname}/g" /etc/nginx/sites-available/${hostname}.conf
+    sed -i -r "s/sudoer/${sudoUser}/g" /etc/nginx/sites-available/${hostname}.conf
+    ln -s -v /etc/nginx/sites-available/${hostname}.conf /etc/nginx/sites-enabled/001-$hostname.conf > /dev/null 2>&1
+    rm -rf /var/www/nginx-default
+    service nginx restart >/dev/null 2>&1
+    echo -n "Done."
+}
+
+install_postfix()
+{
+    echo -n "Installing Postfix..."
+    echo "postfix postifx/mailname string ${hostname}" | debconf-set-selections
+    echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
+    apt-get -y install postfix >> ~/install.log
+    /usr/sbin/postconf -e "inet_interfaces = loopback-only"
+    service postfix restart > /dev/null 2>&1
+    echo "done."
 }
 
 set_variables()
@@ -205,7 +326,27 @@ set_variables()
         sleep .5
         verify "Disable Root" ${disRoot} "disRoot"
     done
-    sleep .5
+    while [ -z "$choice" ]; do
+        sleep .5
+        echo "Choose a database..."
+        echo "0) MariaDB"
+        echo "1) MySQL"
+        read choice
+        case "$choice" in
+            0) echo "MariaDB has been selected"
+                ;;
+            1) echo "MySQL has been selected"
+                ;;
+        esac
+        if [ ${choice} == 0 ];
+            then
+                opt="MariaDB"
+        else
+                opt="MySQL"
+        fi
+        sleep .5
+        verify "Database" ${opt} "opt"
+    done
     echo "Settings done."
 }
 
@@ -237,6 +378,30 @@ os_select
 
 set_variables
 
-set_locale
+#set_locale
 
-set_timezone
+#set_timezone
+
+#set_hostname
+
+#create_sudo_user
+
+#set_root_passwd
+
+#ssh_config
+
+#firewall_config
+
+#tmp_config
+
+#install_base
+
+#install_php
+
+#install_database
+
+#config_wp_database
+
+#install_nginx
+
+#install_postfix
