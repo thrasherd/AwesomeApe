@@ -8,7 +8,7 @@ rootPasswd='foo'
 dbPasswd='baz'
 sshPort='22'
 disRoot=''
-choice=''
+dbType=''
 wpDB=''
 wpUser=''
 wpPasswd=''
@@ -188,7 +188,7 @@ install_php()
 
 install_database()
 {
-    if [ ${choice} == "MariaDB" ];
+    if [ ${dbType} == "MariaDB" ];
         then
             echo -n "Installing MariaDB..."
             apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 1BB943DB
@@ -199,14 +199,15 @@ deb-src http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main" > /et
             echo "mariadb-server mariadb-server/root_password select $dbPasswd" | debconf-set-selections
             echo "mariadb-server mariadb-server/root_password_again select $dbPasswd" | debconf-set-selections
             apt-get install mariadb-server mariadb-client >> ~/install.log
-    elif [ ${choice} == "MySQL" ];
+    elif [ ${dbType} == "MySQL" ];
         then
             echo -n "Installing MySQL..."
             echo "mysql-server mysql-server/root_password select $dbPasswd" | debconf-set-selections
             echo "mysql-server mysql-server/root_password_again select $dbPasswd" | debconf-set-selections
             apt-get install -y mysql-server >> ~/install.log
     else
-        unset ${choice}
+        echo "Invalid database type"
+        unset ${dbType}
     fi
     cat <<EOF > /root/.my.cnf
 [client]
@@ -332,20 +333,17 @@ set_variables()
         echo "0) MariaDB"
         echo "1) MySQL"
         read choice
+        sleep .5
         case "$choice" in
             0) echo "MariaDB has been selected"
+                dbType="MariaDB"
                 ;;
             1) echo "MySQL has been selected"
+                dbType="MySQL"
                 ;;
         esac
-        if [ ${choice} == 0 ];
-            then
-                opt="MariaDB"
-        else
-                opt="MySQL"
-        fi
         sleep .5
-        verify "Database" ${opt} "opt"
+        verify "Database" ${dbType} "dbType"
     done
     echo "Settings done."
 }
