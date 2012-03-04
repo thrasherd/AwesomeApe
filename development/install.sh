@@ -140,10 +140,10 @@ tmp_config()
 install_base()
 {
     echo -n "Setting up base packages..."
-    apt-get update >> ~/install.log
-    apt-get -y safe-upgrade >> ~/install.log
-    apt-get -y full-upgrade >> ~/install.log
-    apt-get -y install curl build-essentials python-software-properties git-core htop >> ~/install.log
+    aptitude update >> ~/install.log
+    aptitude -y safe-upgrade >> ~/install.log
+    aptitude -y full-upgrade >> ~/install.log
+    aptitude -y install curl build-essentials python-software-properties git-core htop >> ~/install.log
     echo "done.."
 }
 
@@ -152,8 +152,8 @@ install_php()
 
     echo -n "Installing PHP..."
     mkdir -p /var/www
-    apt-get -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl >> ~/install.log
-    apt-get -y install php5-fpm php5-cgi php5-pear php-apc php5-dev libpcre3-dev >> ~/install.log
+    aptitude -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl >> ~/install.log
+    aptitude -y install php5-fpm php5-cgi php5-pear php-apc php5-dev libpcre3-dev >> ~/install.log
     perl -p -i -e 's|# Default-Stop:|# Default-Stop:      0 1 6|g;' /etc/init.d/php5-fpm
     cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"`
     chmod 000 /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"` && mv /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"` /tmp
@@ -200,16 +200,16 @@ install_database()
             touch /etc/apt/sources.list.d/mariadb.list
             echo "deb http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main
 deb-src http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main" > /etc/apt/sources.list.d/mariadb.list
-            apt-get update
+            aptitude update
             echo "mariadb-server mariadb-server/root_password select $dbPasswd" | debconf-set-selections
             echo "mariadb-server mariadb-server/root_password_again select $dbPasswd" | debconf-set-selections
-            apt-get install mariadb-server mariadb-client >> ~/install.log
+            aptitude --quiet install mariadb-server mariadb-client >> ~/install.log
     elif [ ${dbType} == "MySQL" ];
         then
             echo -n "Installing MySQL..."
             echo "mysql-server mysql-server/root_password select $dbPasswd" | debconf-set-selections
             echo "mysql-server mysql-server/root_password_again select $dbPasswd" | debconf-set-selections
-            apt-get install -y mysql-server >> ~/install.log
+            aptitude install -y mysql-server >> ~/install.log
     else
         echo "Invalid database type"
         unset ${dbType}
@@ -242,8 +242,8 @@ install_nginx()
 {
     echo -n "Installing Nginx..."
     add-apt-respository ppa:nginx/stable > /dev/null 2>&1
-    apt-get -y update >> ~/install.log
-    apt-get -y install nginx >> ~/install.log
+    aptitude -y update >> ~/install.log
+    aptitude -y install nginx >> ~/install.log
     cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.`date "+%Y-%m-%d"`
     rm -rf /etc/nginx/nginx.conf
     cp conf/nginx.conf /etc/nginx/nginx.conf
@@ -270,7 +270,7 @@ install_postfix()
     echo -n "Installing Postfix..."
     echo "postfix postifx/mailname string ${hostname}" | debconf-set-selections
     echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
-    apt-get -y install postfix >> ~/install.log
+    aptitude -y install postfix >> ~/install.log
     /usr/sbin/postconf -e "inet_interfaces = loopback-only"
     service postfix restart > /dev/null 2>&1
     echo "done."
