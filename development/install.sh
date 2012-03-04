@@ -152,7 +152,7 @@ install_php()
 
     echo -n "Installing PHP..."
     mkdir -p /var/www
-    aptitude -y --quiet install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl >> ~/install.log
+    aptitude -y --quiet install php5-cli php5-common php5-suhosin php5-gd php5-curl >> ~/install.log
     aptitude -y --quiet install php5-fpm php5-cgi php5-pear php-apc php5-dev libpcre3-dev >> ~/install.log
     perl -p -i -e 's|# Default-Stop:|# Default-Stop:      0 1 6|g;' /etc/init.d/php5-fpm
     cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"`
@@ -209,7 +209,9 @@ deb-src http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main" > /et
             echo -n "Installing MySQL..."
             echo "mysql-server mysql-server/root_password select $dbPasswd" | debconf-set-selections
             echo "mysql-server mysql-server/root_password_again select $dbPasswd" | debconf-set-selections
-            aptitude -y --quiet install mysql-server >> ~/install.log
+            aptitude -y --quiet install mysql-server php5-mysql >> ~/install.log
+            service php5-fpm stop > /dev/null 2>&1
+            service php5-fpm start > /dev/null 2>&1
     else
         echo "Invalid database type"
         unset ${dbType}
