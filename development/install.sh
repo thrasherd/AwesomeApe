@@ -130,7 +130,7 @@ firewall_config()
 
 tmp_config()
 {
-    echo "Configuring temporary directory..."
+    echo -n "Configuring temporary directory..."
     echo "APT::ExtractTemplates::TempDir \"/var/local/tmp\";" > /etc/apt/apt.conf.d/50extracttemplates && mkdir /var/local/tmp
     mkdir ~/tmp && chmod 777 ~/tmp
     mount --bind ~/tmp /tmp
@@ -195,15 +195,15 @@ install_database()
 {
     if [ ${dbType} == "MariaDB" ];
         then
-            echo -n "Installing MariaDB..."
-            apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 1BB943DB
+            echo -n "Installing MariaDB...This can take up to 15 minutes..."
+            apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 1BB943DB > /dev/null 2>&1
             touch /etc/apt/sources.list.d/mariadb.list
             echo "deb http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main
 deb-src http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main" > /etc/apt/sources.list.d/mariadb.list
             aptitude update > /dev/null 2>&1
             echo "mariadb-server mariadb-server/root_password select $dbPasswd" | debconf-set-selections
             echo "mariadb-server mariadb-server/root_password_again select $dbPasswd" | debconf-set-selections
-            aptitude -y --quiet install mariadb-server mariadb-client >> ~/install.log
+            aptitude -y --quiet install libmariadbclient16 mariadb-server mariadb-client >> ~/install.log
     elif [ ${dbType} == "MySQL" ];
         then
             echo -n "Installing MySQL..."
@@ -222,7 +222,7 @@ password=$mysqlPasswd
 EOF
     chmod 600 /root/.my.cnf
     mv /etc/mysql/my.cnf /etc/mysql/my.cnf.`date "+%Y-%m-%d"`
-    ./conf/my.sh
+    chmod 755 conf/my.sh && ./conf/my.sh
     touch /var/log/mysql/mysql/mysql-slow.log
     chown mysql:mysql /var/log/mysql/mysql-slow.log
     service mysqld restart > /dev/null 2>&1
@@ -242,7 +242,7 @@ install_nginx()
 {
     echo -n "Installing Nginx..."
     add-apt-respository ppa:nginx/stable > /dev/null 2>&1
-    aptitude -y update >> ~/install.log
+    aptitude -y update > /dev/null 2>&1
     aptitude -y --quiet install nginx >> ~/install.log
     cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.`date "+%Y-%m-%d"`
     rm -rf /etc/nginx/nginx.conf
