@@ -101,7 +101,7 @@ ssh_config()
     sleep 2
     echo -n "Applying SSH port..."
     sed -i -r "s/\s*Port\s+[0-9]+/Port ${sshPort}/g" ${ssh}
-    cp files/iptables.up.rules tmp/fw.$$
+    cp conf/iptables.up.rules tmp/fw.$$
     sed -i -r "s/\s+22\s+/ ${sshPort} /" tmp/fw.$$
     echo "done."
     sleep .5
@@ -180,7 +180,7 @@ install_php()
     perl -p -i -e 's|;realpath_cache_size = 16k|realpath_cache_size = 128k|g;' /etc/php5/fpm/php.ini
     perl -p -i -e 's|;realpath_cache_ttl = 120|realpath_cache_ttl = 600|g;' /etc/php5/fpm/php.ini
     perl -p -i -e 's|disable_functions =|disable_functions = "system,exec,shell_exec,passthru,escapeshellcmd,popen,pcntl_exec"|g;' /etc/php5/fpm/php.ini
-    cp files/apc.ini /etc/php5/fpm/conf.d/apc.ini
+    cp conf/apc.ini /etc/php5/fpm/conf.d/apc.ini
     service php5-fpm stop > /dev/null 2>&1
     service php5-fpm start > /dev/null 2>&1
     echo "done."
