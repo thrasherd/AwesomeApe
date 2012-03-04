@@ -270,7 +270,7 @@ install_nginx()
 install_postfix()
 {
     echo -n "Installing Postfix..."
-    echo "postfix postifx/mailname string ${hostname}" | debconf-set-selections
+    echo "postfix postfix/mailname string ${hostname}" | debconf-set-selections
     echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
     aptitude -y --quiet install postfix >> ~/install.log
     /usr/sbin/postconf -e "inet_interfaces = loopback-only"
