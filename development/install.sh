@@ -203,13 +203,13 @@ deb-src http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main" > /et
             aptitude update > /dev/null 2>&1
             echo "mariadb-server mariadb-server/root_password select $dbPasswd" | debconf-set-selections
             echo "mariadb-server mariadb-server/root_password_again select $dbPasswd" | debconf-set-selections
-            aptitude -y --quiet install libmariadbclient16 mariadb-server mariadb-client >> ~/install.log
+            aptitude -y --quiet --no-gui install mariadb-server mariadb-client >> ~/install.log
     elif [ ${dbType} == "MySQL" ];
         then
             echo -n "Installing MySQL..."
             echo "mysql-server mysql-server/root_password select $dbPasswd" | debconf-set-selections
             echo "mysql-server mysql-server/root_password_again select $dbPasswd" | debconf-set-selections
-            aptitude -y --quiet install mysql-server php5-mysql >> ~/install.log
+            aptitude -y --quiet --no-gui install mysql-server php5-mysql >> ~/install.log
             service php5-fpm stop > /dev/null 2>&1
             service php5-fpm start > /dev/null 2>&1
     else
@@ -225,7 +225,7 @@ EOF
     chmod 600 /root/.my.cnf
     mv /etc/mysql/my.cnf /etc/mysql/my.cnf.`date "+%Y-%m-%d"`
     # chmod 755 conf/my.sh && ./conf/my.sh
-    touch /var/log/mysql/mysql/mysql-slow.log
+    touch /var/log/mysql/mysql-slow.log
     chown mysql:mysql /var/log/mysql/mysql-slow.log
     service mysqld restart > /dev/null 2>&1
     echo "done."
