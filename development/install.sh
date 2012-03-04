@@ -143,7 +143,7 @@ install_base()
     aptitude update >> ~/install.log
     aptitude -y --quiet safe-upgrade >> ~/install.log
     aptitude -y --quiet full-upgrade >> ~/install.log
-    aptitude -y --quiet install curl build-essentials python-software-properties git-core htop >> ~/install.log 2>&1
+    aptitude -y --quiet install curl build-essential python-software-properties git-core htop >> ~/install.log 2>&1
     echo "done.."
 }
 
