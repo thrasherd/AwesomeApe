@@ -44,6 +44,11 @@ clear_tmp()
     rm -rf tmp/*.$$
 }
 
+prebuild()
+{
+    mkdir tmp
+}
+
 set_hostname()
 {
     touch TEST
@@ -376,30 +381,32 @@ os_select
 
 set_variables
 
-#set_locale
+prebuild
 
-#set_timezone
+set_locale
 
-#set_hostname
+set_timezone
 
-#create_sudo_user
+set_hostname
 
-#set_root_passwd
+create_sudo_user
 
-#ssh_config
+set_root_passwd
 
-#firewall_config
+ssh_config
 
-#tmp_config
+firewall_config
 
-#install_base
+tmp_config
 
-#install_php
+install_base
 
-#install_database
+install_php
 
-#config_wp_database
+install_database
 
-#install_nginx
+config_wp_database
 
-#install_postfix
+install_nginx
+
+install_postfix
