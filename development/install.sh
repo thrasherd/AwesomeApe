@@ -203,7 +203,7 @@ deb-src http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main" > /et
             aptitude update > /dev/null 2>&1
             echo "mysql-server mysql-server/root_password select $dbPasswd" | debconf-set-selections
             echo "mysql-server mysql-server/root_password_again select $dbPasswd" | debconf-set-selections
-            aptitude -y install mariadb-server mariadb-client
+            aptitude -y -q=4 install mariadb-server mariadb-client >> ~/install.log 2>&1
     elif [ ${dbType} == "MySQL" ];
         then
             echo -n "Installing MySQL..."
@@ -391,11 +391,11 @@ set_timezone
 
 set_hostname
 
-#create_sudo_user
+create_sudo_user
 
-#set_root_passwd
+set_root_passwd
 
-#ssh_config
+ssh_config
 
 firewall_config
 

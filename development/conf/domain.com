@@ -1,17 +1,17 @@
 server {
-    server_name www.mydomain.com;
-    rewrite ^ ://mydomain.com?;
+    server_name www.domain.com;
+    rewrite ^ ://domain.com?;
 }
 
 server {
-    server_name mydomain.com;
-    root /home/sudoer/mydomain.com/public;
+    server_name domain.com;
+    root /home/sudoer/domain.com/public;
     index index.php index.html;
     charset UTF-8;
     default_type text/html;
 
-    access_log /var/log/nginx/mydomain.com-access.log;
-    error_log /var/log/nginx/mydomain.com-error.log;
+    access_log /var/log/nginx/domain.com-access.log;
+    error_log /var/log/nginx/domain.com-error.log;
 
     location / {
         gzip_static on;
