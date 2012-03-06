@@ -195,7 +195,7 @@ install_database()
 {
     if [ ${dbType} == "MariaDB" ];
         then
-            echo -n "Installing MariaDB...This can take up to 15 minutes..."
+            echo -n "Installing MariaDB..."
             apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 1BB943DB > /dev/null 2>&1
             touch /etc/apt/sources.list.d/mariadb.list
             echo "deb http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main
