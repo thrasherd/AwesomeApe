@@ -141,9 +141,9 @@ install_base()
 {
     echo -n "Setting up base packages..."
     aptitude update >> ~/install.log
-    aptitude -y --quiet safe-upgrade >> ~/install.log
-    aptitude -y --quiet full-upgrade >> ~/install.log
-    aptitude -y --quiet install curl build-essential python-software-properties git-core htop >> ~/install.log 2>&1
+    aptitude -y -q=4 safe-upgrade >> ~/install.log 2>&1
+    aptitude -y -q=4 full-upgrade >> ~/install.log 2>&1
+    aptitude -y -q=4 install curl build-essential python-software-properties git-core htop >> ~/install.log 2>&1
     echo "done.."
 }
 
@@ -219,7 +219,7 @@ deb-src http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main" > /et
     cat <<EOF > /root/.my.cnf
 [client]
 user=root
-password=$mysqlPasswd
+password=$dbPasswd
 
 EOF
     chmod 600 /root/.my.cnf
@@ -234,9 +234,9 @@ EOF
 config_wp_database()
 {
     echo -n "Creating WordPress database..."
-    mysql -e "CREATE DATABASE ${wpDB}"
-    mysql -e "GRANT ALL PRIVILEGES ON ${wpDB}.* to ${wpUser}@localhost INDENTIFIED BY '${wpPasswd}'"
-    mysql -e "FLUSH PRIVILEGES"
+    mysql -uroot -p${dbPasswd} -e "CREATE DATABASE ${wpDB}"
+    mysql -uroot -p${dbPasswd} -e "GRANT ALL PRIVILEGES ON ${wpDB}.* to ${wpUser}@localhost INDENTIFIED BY '${wpPasswd}'"
+    mysql -uroot -p${dbPasswd} -e "FLUSH PRIVILEGES"
     echo "done."
 }
 
@@ -255,11 +255,11 @@ install_nginx()
     echo "au BufRead,BufNewFile /etc/nginx/* set ft=nginx" >> ~/.vim/filetype.vim
     rm -rf /etc/nginx/sites-available/default
     unlink /etc/nginx/sites-enabled/default
-    cp conf/mydomain.com /etc/nginx/sites-available/${hostname}.conf
+    cp conf/domain.com /etc/nginx/sites-available/${hostname}.conf
     rm -rf /etc/nginx/fastcgi_params
     cp conf/fastcgi_params /etc/nginx/fastcgi_params
     sed -i -r "s/sudoer/${sudoUser}/g" /etc/nginx/nginx.conf
-    sed -i -r "s/mydomain.com/${$hostname}/g" /etc/nginx/sites-available/${hostname}.conf
+    sed -i -r "s/domain.com/${$hostname}/g" /etc/nginx/sites-available/${hostname}.conf
     sed -i -r "s/sudoer/${sudoUser}/g" /etc/nginx/sites-available/${hostname}.conf
     ln -s -v /etc/nginx/sites-available/${hostname}.conf /etc/nginx/sites-enabled/001-$hostname.conf > /dev/null 2>&1
     rm -rf /var/www/nginx-default
