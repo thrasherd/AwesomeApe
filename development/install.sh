@@ -1,17 +1,17 @@
 #!/bin/bash
 
 #************************ User Variables **************************#
-hostname='ohaiworld.com'
-sudoUser='rawr'
-sudoPasswd='bar'
-rootPasswd='foo'
-dbPasswd='baz'
-sshPort='22'
-disRoot=''
-dbType=''
-wpDB=''
-wpUser=''
-wpPasswd=''
+hostname='ohaiworld.com'    # Your servers hostname
+sudoUser='rawr'             # Sudo Username
+sudoPasswd='bar'            # Sudo Passwd
+rootPasswd='foo'            # Root Passwd
+dbPasswd='baz'              # Database Passwd
+sshPort='22'                # SSH port
+disRoot='n'                  # Disable root (y,n)
+dbType='MariaDB'                   # Database Type (MariaDB, MySQL)
+wpDB='rawrtest'                     # WordPress Database Name
+wpUser='foo'                   # WordPress Username
+wpPasswd='fubar'                 # WordPress Passwd
 locale='en_US.UTF-8'
 timeZone='America/Los_Angeles'
 #******************************************************************#
@@ -224,7 +224,7 @@ password=$dbPasswd
 EOF
     chmod 600 /root/.my.cnf
     mv /etc/mysql/my.cnf /etc/mysql/my.cnf.`date "+%Y-%m-%d"`
-    # chmod 755 conf/my.sh && ./conf/my.sh
+    chmod 755 conf/my.sh && ./conf/my.sh
     touch /var/log/mysql/mysql-slow.log
     chown mysql:mysql /var/log/mysql/mysql-slow.log
     service mysqld restart > /dev/null 2>&1
@@ -259,7 +259,7 @@ install_nginx()
     rm -rf /etc/nginx/fastcgi_params
     cp conf/fastcgi_params /etc/nginx/fastcgi_params
     sed -i -r "s/sudoer/${sudoUser}/g" /etc/nginx/nginx.conf
-    sed -i -r "s/domain.com/${$hostname}/g" /etc/nginx/sites-available/${hostname}.conf
+    sed -i -r "s/domain.com/${hostname}/g" /etc/nginx/sites-available/${hostname}.conf
     sed -i -r "s/sudoer/${sudoUser}/g" /etc/nginx/sites-available/${hostname}.conf
     ln -s -v /etc/nginx/sites-available/${hostname}.conf /etc/nginx/sites-enabled/001-$hostname.conf > /dev/null 2>&1
     rm -rf /var/www/nginx-default
