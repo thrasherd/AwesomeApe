@@ -203,7 +203,7 @@ deb-src http://mirrors.xmission.com/mariadb/repo/5.2/ubuntu maverick main" > /et
             aptitude update > /dev/null 2>&1
             echo "mysql-server mysql-server/root_password select $dbPasswd" | debconf-set-selections
             echo "mysql-server mysql-server/root_password_again select $dbPasswd" | debconf-set-selections
-            aptitude -y -q=4 install mariadb-server mariadb-client >> ~/install.log 2>&1
+            aptitude -y install mariadb-server mariadb-client 
     elif [ ${dbType} == "MySQL" ];
         then
             echo -n "Installing MySQL..."
@@ -245,7 +245,7 @@ install_nginx()
     echo -n "Installing Nginx..."
     add-apt-respository ppa:nginx/stable > /dev/null 2>&1
     aptitude -y update > /dev/null 2>&1
-    aptitude -y --quiet install nginx >> ~/install.log
+    aptitude -y install nginx 
     cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.`date "+%Y-%m-%d"`
     rm -rf /etc/nginx/nginx.conf
     cp conf/nginx.conf /etc/nginx/nginx.conf
@@ -272,7 +272,7 @@ install_postfix()
     echo -n "Installing Postfix..."
     echo "postfix postfix/mailname string ${hostname}" | debconf-set-selections
     echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
-    aptitude -y --quiet install postfix >> ~/install.log
+    aptitude -y install postfix
     /usr/sbin/postconf -e "inet_interfaces = loopback-only"
     service postfix restart > /dev/null 2>&1
     echo "done."
@@ -395,9 +395,9 @@ create_sudo_user
 
 set_root_passwd
 
-ssh_config
+#ssh_config
 
-firewall_config
+#firewall_config
 
 tmp_config
 
