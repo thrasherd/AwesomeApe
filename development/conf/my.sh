@@ -7,7 +7,7 @@
 ramCount=`awk 'match($0,/vmguar/) {print $4}' /proc/user_beancounters`
 ramBase=-16 && for ((;ramCount>1;ramBase++)); do ramCount=$((ramCount/2)); done
 
-cat <<EOF > /etc/my.cnf
+cat <<EOF > /etc/mysql/my.cnf
 [mysqld]
 # Basic settings
 user = mysql
